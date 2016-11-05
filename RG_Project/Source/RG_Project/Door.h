@@ -3,10 +3,11 @@
 #pragma once
 
 #include "GameFramework/Pawn.h"
+#include "ButtonActivated.h"
 #include "Door.generated.h"
 
 UCLASS()
-class RG_PROJECT_API ADoor : public APawn
+class RG_PROJECT_API ADoor : public APawn//, public IButtonActivated
 {
 	GENERATED_BODY()
 
@@ -23,6 +24,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	
-	
+//	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ButtonActivated")
+//		void Activate();
+//	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ButtonActivated")
+//		void Deactivate();
 };
