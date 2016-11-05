@@ -32,4 +32,14 @@ void ADoor::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	Super::SetupPlayerInputComponent(InputComponent);
 
 }
+/*
+void ADoor::Activate()
+{
+	return;
+}
+
+void ADoor::Deactivate()
+{
+	return;
+}*/
 
