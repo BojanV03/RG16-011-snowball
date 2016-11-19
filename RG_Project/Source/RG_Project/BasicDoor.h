@@ -30,9 +30,11 @@ public:
 //	UPROPERTY(EditAnywhere)
 //		UAnimationAsset *DoorAnimation;
 
+	// This function is called when the button is Activated
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ButtonActivated")
 		void Activate();
 		virtual void Activate_Implementation() override;
+	// ~||~										  Deactivated
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ButtonActivated")
 		void Deactivate();
 		virtual void Deactivate_Implementation() override;
