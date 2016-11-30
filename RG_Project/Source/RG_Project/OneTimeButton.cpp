@@ -10,6 +10,7 @@ AOneTimeButton::AOneTimeButton()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Allow these objects to be set/modified from within UE4
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("StaticMesh"));
 	CollisionDetection = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));

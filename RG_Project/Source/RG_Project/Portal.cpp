@@ -9,17 +9,23 @@ APortal::APortal()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Allow these objects to be set/modified from within UE4
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	PortalMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PortalMesh"));
 	PortalPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PortalPlane"));
-//	PortalView = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("PortalPlane"));
+	Activator = CreateDefaultSubobject<UBoxComponent>(TEXT("Activator"));
 
 	RootComponent = Root;
 
 	PortalMesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	PortalPlane->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-//	Arrow->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-//	Arrow->SetRelativeRotation(FRotator(0, 0, -90));
+	Activator->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	
+	PortalPlane->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	PortalPlane->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	PortalPlane->OnComponentBeginOverlap.AddDynamic(this, &APortal::PortalBeginOverlap);
+	Activator->OnComponentBeginOverlap.AddDynamic(this, &APortal::ActivatorBeginOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -36,22 +42,28 @@ void APortal::Tick( float DeltaTime )
 
 	if (isPortalActivated)
 	{
+		//CamLocation = Portal2 - Portal1 + PlayerCam
 		FVector Location;
+
 		FTransform CameraTransform = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetTransform();
 		Location = TargetPortal->GetActorLocation() - this->GetActorLocation();
 		Location += CameraTransform.GetLocation();
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetTransform().GetLocation().ToString());
+//		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetTransform().GetLocation().ToString());
 
 		PortalView->SetWorldLocationAndRotation(Location, CameraTransform.GetRotation(), false);
 		PortalView->CaptureScene();
 	}
 }
 
-void APortal::BeginOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void APortal::PortalBeginOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
+	isPortalActivated = false;
+	OtherActor->SetActorLocation(TargetPortal->GetActorLocation());
+	
 }
 
-void APortal::EndOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex)
+void APortal::ActivatorBeginOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
+	isPortalActivated = true;
 }

@@ -10,6 +10,7 @@ AStair::AStair()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Allow these objects to be set/modified from within UE4
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	StairMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	CollisionDetection = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
@@ -86,7 +87,7 @@ void AStair::EndOverlap(UPrimitiveComponent * OverlapedComponent, AActor * Other
 {
 	NearByBalls--;
 }
-
+// Crashes the editor
 void AStair::ActivateTimer(void)
 {
 

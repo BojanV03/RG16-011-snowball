@@ -35,7 +35,7 @@ public:
 		USceneCaptureComponent2D *PortalView;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
-		ATriggerVolume *Activator;
+		UBoxComponent *Activator;
 	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
@@ -44,8 +44,8 @@ public:
 		bool isPortalActivated = true;
 	
 	UFUNCTION()
-		void BeginOverlap(class UPrimitiveComponent* OverlapedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+		void PortalBeginOverlap(class UPrimitiveComponent* OverlapedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
 	UFUNCTION()
-		void EndOverlap(class UPrimitiveComponent* OverlapedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp2, int32 OtherBodyIndex);
+		void ActivatorBeginOverlap(class UPrimitiveComponent* OverlapedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
 
 };
