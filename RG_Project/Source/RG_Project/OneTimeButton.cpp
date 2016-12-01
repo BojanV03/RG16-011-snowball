@@ -26,8 +26,10 @@ AOneTimeButton::AOneTimeButton()
 void AOneTimeButton::BeginOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	IButtonActivated* iTarget = Cast<IButtonActivated>(Target);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Usao"));
 	if (iTarget)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PROSAO"));
 		//Don't call your functions directly, use the 'Execute_' prefix
 		//the Execute_ReactToHighNoon and Execute_ReactToMidnight are generated on compile
 		//you may need to compile before these functions will appear
@@ -37,7 +39,12 @@ void AOneTimeButton::BeginOverlap(UPrimitiveComponent * OverlapedComponent, AAct
 		Mesh->Play(false);
 		return;
 	}
-
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PAO"));
+		Mesh->SetPlayRate(1);
+		Mesh->Play(false);
+	}
 }
 
 void AOneTimeButton::EndOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex)
