@@ -15,9 +15,8 @@ AStair::AStair()
 	StairMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	CollisionDetection = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	RootComponent = Root;
-	StairMesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-
-	CollisionDetection->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	StairMesh->SetupAttachment(RootComponent);
+	CollisionDetection->SetupAttachment(RootComponent);
 
 	CollisionDetection->RelativeScale3D = FVector(3, 3, 3);
 	CollisionDetection->RelativeLocation = FVector(0, 0, 75);

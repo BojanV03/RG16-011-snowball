@@ -16,7 +16,7 @@ ABasicDoor::ABasicDoor()
 
 
 	RootComponent = Root;
-	DoorMesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	DoorMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

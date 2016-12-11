@@ -18,9 +18,12 @@ APortal::APortal()
 
 	RootComponent = Root;
 
-	PortalMesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	PortalPlane->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	Activator->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	PortalMesh->SetupAttachment(RootComponent);
+	PortalPlane->SetupAttachment(RootComponent);
+	Activator->SetupAttachment(RootComponent);
+//	PortalMesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+//	PortalPlane->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+//	Activator->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	
 	PortalPlane->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	PortalPlane->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);

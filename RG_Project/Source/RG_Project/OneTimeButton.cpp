@@ -16,8 +16,8 @@ AOneTimeButton::AOneTimeButton()
 	CollisionDetection = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 
 	RootComponent = Root;
-	Mesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	CollisionDetection->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Mesh->SetupAttachment(RootComponent);
+	CollisionDetection->SetupAttachment(RootComponent);
 
 	CollisionDetection->OnComponentBeginOverlap.AddDynamic(this, &AOneTimeButton::BeginOverlap);
 	CollisionDetection->OnComponentEndOverlap.AddDynamic(this, &AOneTimeButton::EndOverlap);
