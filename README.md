@@ -2,8 +2,7 @@
 
 A 3D Rolling Puzzle Platformer (if that genre even exists) made in Unreal Engine 4. The main purpose of this project is for me to learn the basics of everything that the engine has to offer all while using my Computer Graphics course as an excuse to spend multiple hours each day making a video game instead of studying maths.
 
-Keyboard Controls:
-###Controls
+###Keyboard Controls
 | Key        | Action           |
 |:-------------:|:-------------:|
 | W/S/A/D      | Move forward/backwards/left/right |
@@ -13,9 +12,11 @@ Keyboard Controls:
 | Shift+Tab      | Change control to the previous ball in the array      |
 | H      | Toggle show HUD      |
 
-Mouse Controls:
+###Mouse Controls:
 Left mouse button- Toggle merge mode(if on, when you touch another snowball, you will gain all it's mass/volume and it will be destroyed)
+
 Scroll up/down- Zoom in/out
+
 Right mouse button- Freeze camera in it's current location
 
 Screenshots as of 12.15.2016:
