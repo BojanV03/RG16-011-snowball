@@ -27,8 +27,9 @@ void AOneTimeButton::BeginOverlap(UPrimitiveComponent * OverlapedComponent, AAct
 {
 	IButtonActivated* iTarget = Cast<IButtonActivated>(Target);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Usao"));
-	if (iTarget)
+	if (iTarget && !activated)
 	{
+		activated = true;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PROSAO"));
 		//Don't call your functions directly, use the 'Execute_' prefix
 		//the Execute_ReactToHighNoon and Execute_ReactToMidnight are generated on compile

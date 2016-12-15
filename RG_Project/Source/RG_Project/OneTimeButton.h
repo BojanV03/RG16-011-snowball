@@ -21,6 +21,7 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
+	bool activated = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stair")
 		USceneComponent *Root;
 

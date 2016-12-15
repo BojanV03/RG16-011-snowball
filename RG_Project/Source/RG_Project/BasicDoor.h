@@ -27,9 +27,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ButtonActivated")
 		USceneComponent *Root;
 
-//	UPROPERTY(EditAnywhere)
-//		UAnimationAsset *DoorAnimation;
-
 	// This function is called when the button is Activated
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ButtonActivated")
 		void Activate();

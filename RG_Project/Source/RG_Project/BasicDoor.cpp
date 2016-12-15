@@ -14,7 +14,6 @@ ABasicDoor::ABasicDoor()
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	DoorMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 
-
 	RootComponent = Root;
 	DoorMesh->SetupAttachment(RootComponent);
 }
