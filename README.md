@@ -11,6 +11,7 @@ A 3D Rolling Puzzle Platformer (if that genre even exists) made in Unreal Engine
 | Tab      | Change control to the next ball in the array      |
 | Shift+Tab      | Change control to the previous ball in the array      |
 | H      | Toggle show HUD      |
+| 1/2/3/4/5/6| potato/low/medium/high/epic/cinematic graphics|
 
 ###Mouse Controls:
 Left mouse button- Toggle merge mode(if on, when you touch another snowball, you will gain all it's mass/volume and it will be destroyed)
