@@ -17,6 +17,7 @@ ARollingCodeBall::ARollingCodeBall()
 	Ball->BodyInstance.MassScale = 3.5f;
 	Ball->BodyInstance.MaxAngularVelocity = 800.0f;
 	Ball->SetNotifyRigidBodyCollision(true);
+	Ball->SetMassScale("None", Ball->RelativeScale3D.GetAbsMax() * MassScaleMultiplier);
 	RootComponent = Ball;
 
 	// Create a camera boom attached to the root (ball)
@@ -36,8 +37,16 @@ ARollingCodeBall::ARollingCodeBall()
 
 	// Set up forces
 	RollTorque = 50000000.0f;
-	JumpImpulse = 350000.0f;
-	bCanJump = true; // Start being able to jump
+	JumpImpulse = 700.0f;
+	// Other variables
+	bCanJump = true; 
+	MassScaleMultiplier = 3.5;
+	bIsCameraAttached = true;
+	bCanMerge = false;
+	bOnFire = false;
+	Radius = 100;
+	MouseSensitivity = 5;
+	ScrollSensitivity = 150;
 }
 
 
@@ -56,23 +65,39 @@ void ARollingCodeBall::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 void ARollingCodeBall::MoveRight(float Val)
 {
-	const FVector Torque = FVector(-1.f * Val * RollTorque, 0.f, 0.f);
+	float radiusTimesMass = Ball->GetMass() * Ball->RelativeScale3D.GetMax();
+	float a = (Val * RollTorque * radiusTimesMass) / 1000;
+	
+	FVector RightVector = GetActorForwardVector();
+	RightVector = FVector(RightVector.Y*-1, RightVector.X, 0);
+
+	FVector Torque = RightVector * a;
 	Ball->AddTorque(Torque);
 }
 
 void ARollingCodeBall::MoveForward(float Val)
 {
-	const FVector Torque = FVector(0.f, Val * RollTorque, 0.f);
-	Ball->AddTorque(Torque);	
+	float radiusTimesMass = Ball->GetMass() * Ball->RelativeScale3D.GetMax();
+	float a = (Val * RollTorque * radiusTimesMass) / 1000;
+	
+	FVector Torque = GetActorForwardVector() * a;
+	Ball->AddTorque(Torque);
 }
 
 void ARollingCodeBall::Jump()
 {
 	if(bCanJump)
 	{
-		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
-		Ball->AddImpulse(Impulse);
-		bCanJump = false;
+		// We want to reach the minimum JumpImpulse when Scale of the ball reaches 5 Unreal Units
+		// but still maintain the same impulse between 0 and 1 UUnits
+		float subtrahend = FMath::Clamp(Ball->RelativeScale3D.GetAbsMax(), 1.f, 5.f);		
+		subtrahend -= 1; // This is now in a range between 0-4
+		// We want a linear decrease all the way to 0in the subtrahend of the zImpulse equation
+		subtrahend *= 170; // therefore we scale it to fit the 0-700 region
+		float zImpulse = Ball->GetMass() * (JumpImpulse - subtrahend);
+		// Add impulse to the ball
+		Ball->AddImpulse(FVector(0.f, 0.f, zImpulse));
+		bCanJump = false;	// And reenable jumping
 	}
 }
 
@@ -87,7 +112,7 @@ void ARollingCodeBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Locat
 {
 	if (bCanJump)
 	{
-		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
+		const FVector Impulse = FVector::FVector::FVector(0.f, 0.f, JumpImpulse);
 		Ball->AddImpulse(Impulse);
 		bCanJump = false;
 	}

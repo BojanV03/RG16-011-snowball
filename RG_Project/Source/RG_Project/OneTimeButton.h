@@ -22,7 +22,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	bool activated = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stair")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")
 		USceneComponent *Root;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")

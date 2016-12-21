@@ -1,6 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Pawn.h"
+#include "RollingCodeGameMode.h"
 #include "RollingCodeBall.generated.h"
 
 UCLASS(config=Game)
@@ -31,11 +32,37 @@ public:
 	UPROPERTY(EditAnywhere, Category=Ball)
 	float RollTorque;
 
+	/** */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		float Radius;
+	/** */
+//	UPROPERTY(EditAnywhere, Category = Ball)
+//		RollingCodeGameMode GameMode;
+	/** */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		float MouseSensitivity;
+	/** */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		float ScrollSensitivity;
+	/** */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		float MassScaleMultiplier;
+	/** */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		bool bIsCameraAttached;
+	/** */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		bool bCanMerge;
+	/** */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		bool bOnFire;
 	/** Indicates whether we can currently jump, use to prevent double jumping */
-	bool bCanJump;
+	UPROPERTY(EditAnywhere, Category = Ball)
+		bool bCanJump;
+
+	
 
 protected:
-
 	/** Called for side to side input */
 	void MoveRight(float Val);
 
