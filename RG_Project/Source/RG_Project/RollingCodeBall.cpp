@@ -30,6 +30,7 @@ ARollingCodeBall::ARollingCodeBall()
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 3.f;
 
+
 	// Create a camera and attach to boom
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera0"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
@@ -55,23 +56,24 @@ void ARollingCodeBall::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	// set up gameplay key bindings
 	PlayerInputComponent->BindAxis("MoveRight", this, &ARollingCodeBall::MoveRight);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ARollingCodeBall::MoveForward);
+	PlayerInputComponent->BindAxis("CamRotateUp", this, &ARollingCodeBall::CamRotateUp);
+	PlayerInputComponent->BindAxis("CamRotateRight", this, &ARollingCodeBall::CamRotateRight);
+	PlayerInputComponent->BindAxis("CamZoomIn", this, &ARollingCodeBall::CamZoomIn);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ARollingCodeBall::Jump);
+	PlayerInputComponent->BindAction("CamReset", IE_Pressed, this, &ARollingCodeBall::CamReset);
 
 	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARollingCodeBall::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ARollingCodeBall::TouchStopped);
+	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARollingCodeBall::JumpStarted);
+	PlayerInputComponent->BindTouch(IE_Released, this, &ARollingCodeBall::JumpStopped);
 }
 
 void ARollingCodeBall::MoveRight(float Val)
 {
 	float radiusTimesMass = Ball->GetMass() * Ball->RelativeScale3D.GetMax();
-	float a = (Val * RollTorque * radiusTimesMass) / 1000;
-	
-	FVector RightVector = GetActorForwardVector();
-	RightVector = FVector(RightVector.Y*-1, RightVector.X, 0);
+	float a = -1 * (Val * RollTorque * radiusTimesMass) / 1000;
 
-	FVector Torque = RightVector * a;
+	FVector Torque = SpringArm->GetForwardVector() * a;
 	Ball->AddTorque(Torque);
 }
 
@@ -79,8 +81,11 @@ void ARollingCodeBall::MoveForward(float Val)
 {
 	float radiusTimesMass = Ball->GetMass() * Ball->RelativeScale3D.GetMax();
 	float a = (Val * RollTorque * radiusTimesMass) / 1000;
-	
-	FVector Torque = GetActorForwardVector() * a;
+
+	FVector ForwardVector = SpringArm->GetForwardVector();
+	ForwardVector = FVector(ForwardVector.Y*-1, ForwardVector.X, 0);
+
+	FVector Torque = ForwardVector * a;
 	Ball->AddTorque(Torque);
 }
 
@@ -101,6 +106,41 @@ void ARollingCodeBall::Jump()
 	}
 }
 
+void ARollingCodeBall::CamReset()
+{
+	SpringArm->TargetArmLength = 1200;
+	SpringArm->SetWorldRotation(FRotator(-45.0f, SpringArm->GetComponentRotation().Yaw, 0.0f));
+}
+
+void ARollingCodeBall::CamRotateRight(float Val)
+{
+	FRotator currentRotation = SpringArm->GetComponentRotation();
+	SpringArm->SetWorldRotation(FRotator(currentRotation.Pitch, Val * MouseSensitivity + currentRotation.Yaw, currentRotation.Roll));
+
+}
+
+void ARollingCodeBall::CamRotateUp(float Val)
+{
+	FRotator currentRotation = SpringArm->GetComponentRotation();
+	if (FMath::Abs(Val * MouseSensitivity + currentRotation.Pitch) < 89.99)
+	{
+		SpringArm->SetWorldRotation(FRotator(Val * MouseSensitivity + currentRotation.Pitch, currentRotation.Yaw, currentRotation.Roll));
+	}
+}
+
+
+void ARollingCodeBall::CamZoomIn(float Val)
+{
+	float newLength = (-1.0f*Val*ScrollSensitivity) + SpringArm->TargetArmLength;
+	if (newLength > 1)
+	{
+		SpringArm->TargetArmLength = newLength;
+	}
+	else
+	{
+		SpringArm->TargetArmLength = 1.0f;
+	}
+}
 void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
@@ -108,7 +148,7 @@ void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	bCanJump = true;
 }
 
-void ARollingCodeBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
+void ARollingCodeBall::JumpStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	if (bCanJump)
 	{
@@ -119,7 +159,7 @@ void ARollingCodeBall::TouchStarted(ETouchIndex::Type FingerIndex, FVector Locat
 
 }
 
-void ARollingCodeBall::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
+void ARollingCodeBall::JumpStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 	if (bCanJump)
 	{

@@ -72,6 +72,18 @@ protected:
 	/** Handle jump action. */
 	void Jump();
 
+	/** Handle reset camera action. */
+	void CamReset();
+
+	/** Handle mouse X axis . */
+	void CamRotateRight(float Val);
+
+	/** Handle mouse Y axis . */
+	void CamRotateUp(float Val); 
+
+	/** Handle mouse scroll. */
+	void CamZoomIn(float Val);
+
 	// AActor interface
 	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 	// End of AActor interface
@@ -81,10 +93,10 @@ protected:
 	// End of APawn interface
 
 	/** Handler for when a touch input begins. */
-	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
+	void JumpStarted(ETouchIndex::Type FingerIndex, FVector Location);
 
 	/** Handler for when a touch input stops. */
-	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+	void JumpStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 public:
 	/** Returns Ball subobject **/
