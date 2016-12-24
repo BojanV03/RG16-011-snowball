@@ -10,6 +10,14 @@ class ARollingCodeGameMode : public AGameModeBase
 
 public:
 	ARollingCodeGameMode();
+
+	TArray<AActor*> BallArray;
+	UPROPERTY(EditAnywhere, Category = Gamemode)
+		int CurrentBallIndex;
+	UPROPERTY(EditAnywhere, Category = Gamemode)
+		int FPS;
+
+	virtual void Tick(float DeltaSeconds) override;
 };
 
 

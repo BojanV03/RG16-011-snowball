@@ -24,6 +24,12 @@ class ARollingCodeBall : public APawn
 public:
 	ARollingCodeBall();
 
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	// Called when the ball is destroyed
+	virtual void Destroyed() override;
+
 	/** Vertical impulse to apply when pressing jump */
 	UPROPERTY(EditAnywhere, Category=Ball)
 	float JumpImpulse;
@@ -32,65 +38,96 @@ public:
 	UPROPERTY(EditAnywhere, Category=Ball)
 	float RollTorque;
 
-	/** */
+	/** Radius of the ball */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		float Radius;
-	/** */
-//	UPROPERTY(EditAnywhere, Category = Ball)
-//		RollingCodeGameMode GameMode;
-	/** */
+
+	/** Reference to the currently used game mode */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		ARollingCodeGameMode *GameMode;
+
+	/** Mouse X/Y axis movement sensitivity multiplier */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		float MouseSensitivity;
-	/** */
+
+	/** Mouse scroll sensitivity multiplier */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		float ScrollSensitivity;
-	/** */
+
+	/** Multiply snowballs scale with this to calculate it's mass */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		float MassScaleMultiplier;
-	/** */
+
+	/** Is camera attached to the spring arm? If false, camera will remain static in the world */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		bool bIsCameraAttached;
-	/** */
+
+	/** Should this ball merge with another one upon impact*/
 	UPROPERTY(EditAnywhere, Category = Ball)
 		bool bCanMerge;
-	/** */
+
+	//TODO
+	/** Setting this to true disables the Snow particle system and enables the Fire particle system*/
 	UPROPERTY(EditAnywhere, Category = Ball)
 		bool bOnFire;
+
 	/** Indicates whether we can currently jump, use to prevent double jumping */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		bool bCanJump;
-
 	
 
 protected:
+
 	/** Called for side to side input */
 	void MoveRight(float Val);
 
 	/** Called to move ball forwards and backwards */
 	void MoveForward(float Val);
 
-	/** Handle jump action. */
+	/** Handle jump action */
 	void Jump();
 
-	/** Handle reset camera action. */
+	/** Handle reset camera action */
 	void CamReset();
 
-	/** Handle mouse X axis . */
+	/** Handle reset camera detachment */
+	void CamDetach();
+
+	/** Handle mouse X axis */
 	void CamRotateRight(float Val);
 
-	/** Handle mouse Y axis . */
+	/** Handle mouse Y axis */
 	void CamRotateUp(float Val); 
 
-	/** Handle mouse scroll. */
+	/** Handle mouse scroll */
 	void CamZoomIn(float Val);
 
-	// AActor interface
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
-	// End of AActor interface
+	/** Handle ball resizing */
+	void Resize(float Val);
 
-	// APawn interface
+	/** Increase ball when key is pressed */
+	void IncreaseSize();
+
+	/** Decrease ball when key is pressed */
+	void DecreaseSize();
+
+	/** Split a ball in half */
+	void Split();
+
+	/** bCanMerge = !bCanMerge */
+	void ToggleMerge();
+
+	/** Possess next Ball */
+	void ChangeBallForward();
+
+	/** Possess previous Ball */
+	void ChangeBallBackward();
+
+	// Called each time this collides with something
+	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+
+	// Input Axis/Action setup
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	// End of APawn interface
 
 	/** Handler for when a touch input begins. */
 	void JumpStarted(ETouchIndex::Type FingerIndex, FVector Location);
