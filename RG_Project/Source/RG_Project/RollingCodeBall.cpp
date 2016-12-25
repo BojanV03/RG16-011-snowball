@@ -14,12 +14,14 @@ ARollingCodeBall::ARollingCodeBall()
 	Ball->SetStaticMesh(BallMesh.Object);
 	Ball->BodyInstance.SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
 	Ball->SetSimulatePhysics(true);
-	Ball->SetAngularDamping(0.1f);
-	Ball->SetLinearDamping(0.1f);
+	Ball->SetAngularDamping(0.3f);
+	Ball->SetLinearDamping(0.7f);
+	Ball->SetEnableGravity(true);
 	Ball->BodyInstance.MassScale = 3.5f;
 	Ball->BodyInstance.MaxAngularVelocity = 800.0f;
 	Ball->SetNotifyRigidBodyCollision(true);
 	Ball->SetMassScale("None", Ball->RelativeScale3D.GetAbsMax() * MassScaleMultiplier);
+	Ball->SetVisibility(false);
 	RootComponent = Ball;
 
 	// Create a camera boom attached to the root (ball)
@@ -32,7 +34,14 @@ ARollingCodeBall::ARollingCodeBall()
 	SpringArm->bEnableCameraLag = false;
 	SpringArm->CameraLagSpeed = 3.0f;
 	SpringArm->bDoCollisionTest = true;
-
+	
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallSkinMesh(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/EyeBall/Eyeball.Eyeball'"));
+	//
+	BallSkin = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallSkin"));
+	BallSkin->SetupAttachment(RootComponent);
+	BallSkin->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BallSkin->SetSimulatePhysics(false);
+	BallSkin->SetStaticMesh(BallSkinMesh.Object);
 
 	// Create a camera and attach to boom
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera0"));
@@ -152,7 +161,7 @@ void ARollingCodeBall::CamRotateRight(float Val)
 void ARollingCodeBall::CamRotateUp(float Val)
 {
 	FRotator currentRotation = SpringArm->GetComponentRotation();
-	if (FMath::Abs(Val * MouseSensitivity + currentRotation.Pitch) < 89.99)
+	if (FMath::Abs(Val * MouseSensitivity + currentRotation.Pitch) < 89.98)
 	{
 		SpringArm->SetWorldRotation(FRotator(Val * MouseSensitivity + currentRotation.Pitch, currentRotation.Yaw, currentRotation.Roll));
 	}
@@ -239,7 +248,7 @@ void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	bCanJump = true;
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Emerald, FString::Printf(TEXT("CanMerge: %d"), bCanMerge ? 1 : 0));
 
-	if (Other == nullptr)	//leave if the Other object is not an AActor
+	if (Other == nullptr || OtherComp->GetMaterial(0) == nullptr)	//leave if the Other object is not an AActor
 		return;
 
 	ARollingCodeBall *otherBall = Cast<ARollingCodeBall>(Other);
@@ -300,7 +309,7 @@ void ARollingCodeBall::JumpStopped(ETouchIndex::Type FingerIndex, FVector Locati
 
 void ARollingCodeBall::Split()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, FString::FromInt(GameMode->BallArray.Num()));
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::FromInt(GameMode->BallArray.Num()));
 	Ball->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	bCanMerge = false;
 
@@ -346,5 +355,6 @@ void ARollingCodeBall::BeginPlay()
 
 void ARollingCodeBall::Destroyed()
 {
-	GameMode->BallArray.Remove(this);
+	if(GameMode != nullptr && GameMode->BallArray.Contains(this))
+		GameMode->BallArray.Remove(this);
 }
