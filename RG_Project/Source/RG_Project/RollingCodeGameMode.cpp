@@ -9,6 +9,7 @@ ARollingCodeGameMode::ARollingCodeGameMode()
 	// set default pawn class to our ball
 	DefaultPawnClass = ARollingCodeBall::StaticClass();
 	PrimaryActorTick.bCanEverTick = true;
+	BallMeshFactory = MeshFactory();
 }
 
 

@@ -25,11 +25,34 @@ class ARollingCodeBall : public APawn
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ball, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
 
+	/** Snow/Fire */
+	UPROPERTY(VisibleAnywhere, Category = Ball)
+		UParticleSystemComponent* SnowParticle;
+
+	UPROPERTY(VisibleAnywhere, Category = Ball)
+		UParticleSystemComponent* FireParticle;
+
 public:
 	ARollingCodeBall();
 
+	UFUNCTION(BlueprintCallable, Category = Ball)
+	void activateSnow();
+
+	UFUNCTION(BlueprintCallable, Category = Ball)
+	void deactivateSnow();
+
+	UFUNCTION(BlueprintCallable, Category = Ball)
+	void activateFire();
+
+	UFUNCTION(BlueprintCallable, Category = Ball)
+	void deactivateFire();
+
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Called every frame
+	virtual void Tick(float DeltaSeconds) override;
 
 	// Called when the ball is destroyed
 	virtual void Destroyed() override;

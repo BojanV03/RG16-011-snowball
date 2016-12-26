@@ -30,9 +30,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Piston")
 		USceneComponent *Root;
+
 	// This function is called when the button is Activated
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Piston")
-
 		void Activate();
 	virtual void Activate_Implementation() override;
 	// ~||~										  Deactivated

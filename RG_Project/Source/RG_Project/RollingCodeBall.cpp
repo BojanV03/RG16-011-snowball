@@ -13,6 +13,8 @@ ARollingCodeBall::ARollingCodeBall()
 	// Preparing all the Meshes
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallMesh(TEXT("/Game/Rolling/Meshes/BallMesh.BallMesh"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallSkinMesh(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/AwesomeBall/AwesomeBall.AwesomeBall'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> SnowParticles(TEXT("ParticleSystem'/Game/Particles/Snow/Snow.Snow'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> FireParticles(TEXT("ParticleSystem'/Game/Particles/Fire/P_Fire.P_Fire'"));
 
 	// Create mesh component for the ball
 	Ball = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Ball0"));
@@ -40,7 +42,7 @@ ARollingCodeBall::ARollingCodeBall()
 	SpringArm->CameraLagSpeed = 3.0f;
 	SpringArm->bDoCollisionTest = true;
 	
-	//
+	// Create a Skin; the visible part of the ball
 	BallSkin = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallSkin"));
 	BallSkin->SetupAttachment(RootComponent);
 	BallSkin->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -51,6 +53,22 @@ ARollingCodeBall::ARollingCodeBall()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera0"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
+
+	// Create the Snow particle system
+	SnowParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("SnowParticle"));
+	SnowParticle->SetupAttachment(Camera, "None");
+	SnowParticle->RelativeLocation = FVector(SnowParticle->RelativeLocation.X, SnowParticle->RelativeLocation.Y, SnowParticle->RelativeLocation.Z + 250);
+	SnowParticle->Deactivate();
+
+	SnowParticle->Template = SnowParticles.Object;
+
+	// Create the Fire particle system
+	FireParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FireParticle"));
+	FireParticle->SetupAttachment(Ball, "None");
+	FireParticle->Deactivate();
+	FireParticle->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
+	FireParticle->Template = FireParticles.Object;
+
 
 	// Set up forces
 	RollTorque = 50000000.0f;
@@ -66,6 +84,28 @@ ARollingCodeBall::ARollingCodeBall()
 	ScrollSensitivity = 150.0f;
 
 	Resize(0.0f);
+}
+
+void ARollingCodeBall::activateSnow()
+{
+	SnowParticle->Activate(false);
+}
+
+void ARollingCodeBall::deactivateSnow()
+{
+	SnowParticle->Deactivate();
+}
+
+void ARollingCodeBall::activateFire()
+{
+	FireParticle->Activate(false);
+	bOnFire = true;
+}
+
+void ARollingCodeBall::deactivateFire()
+{
+	FireParticle->Deactivate();
+	bOnFire = false;
 }
 
 
@@ -237,8 +277,15 @@ void ARollingCodeBall::ChangeBallForward()
 	GEngine->AddOnScreenDebugMessage(-1, 6, FColor::Orange, FString::Printf(TEXT("NewIndex: %d"), newIndex));
 
 	bCanMerge = false;
-	
+	deactivateFire();
+	deactivateSnow();
+
 	GetWorld()->GetFirstPlayerController()->Possess((ARollingCodeBall*)GameMode->BallArray[newIndex]);
+	if (bOnFire)
+		((ARollingCodeBall*)GameMode->BallArray[newIndex])->activateFire();
+	else
+		((ARollingCodeBall*)GameMode->BallArray[newIndex])->activateSnow();
+
 	GameMode->CurrentBallIndex = newIndex;
 }
 
@@ -332,7 +379,7 @@ void ARollingCodeBall::Split()
 	FVector spawnLocation;
 	spawnLocation.X = Ball->GetComponentLocation().X;
 	spawnLocation.Y = Ball->GetComponentLocation().Y;
-	spawnLocation.Z = Ball->GetComponentLocation().Z + Radius;
+	spawnLocation.Z = Ball->GetComponentLocation().Z + newScale*200;
 	FTransform spawnTransform = FTransform(Ball->GetComponentRotation(), spawnLocation, Ball->RelativeScale3D);
 	FActorSpawnParameters F;
 	F.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -363,6 +410,7 @@ void ARollingCodeBall::BeginPlay()
 	}
 	GameMode->BallArray.AddUnique(this);
 
+	GEngine->AddOnScreenDebugMessage(-1, 250, FColor::Orange, FString::FromInt(GameMode->BallArray.Num()));
 
 	// Load BallSkin from SaveGame	
 	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
@@ -372,8 +420,37 @@ void ARollingCodeBall::BeginPlay()
 		BallSkinID = LoadGameInstance->BallSkinID;
 		Ball->SetStaticMesh(GameMode->BallMeshFactory.getMeshFromID(BallSkinID));
 		BallSkin->SetStaticMesh(GameMode->BallMeshFactory.getSkinFromID(BallSkinID));
+
+		// if it is the first ball added to the array we want the particle effects
+		if (GameMode->BallArray.Num() == 1)
+		{
+			if (BallSkinID == 8)
+			{
+				bOnFire = true;
+				SnowParticle->Deactivate();
+				FireParticle->Activate();
+			}
+			else
+			{
+				FireParticle->Deactivate();
+				SnowParticle->Activate();
+			}
+		} // otherwise turn them off
+		else
+		{
+			SnowParticle->Deactivate();
+			FireParticle->Deactivate();
+		}
 	}
 	Resize(0.0f);
+}
+
+void ARollingCodeBall::Tick(float DeltaSeconds)
+{
+	// if it is a fireball
+	if (bOnFire)
+		FireParticle->SetWorldRotation(FRotator(0.0f, 0.0f, 0.0f));
+
 }
 
 void ARollingCodeBall::Destroyed()

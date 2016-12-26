@@ -31,8 +31,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")
 		UBoxComponent *CollisionDetection;
 	
-	//	Error: UPROPERTY Pointers cannot be interfaces, did you mean "TScriptInterface<IButtonActivated>"
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")
 		AActor *Target;
 	

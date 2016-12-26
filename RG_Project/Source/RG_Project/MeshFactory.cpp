@@ -5,6 +5,7 @@
 
 MeshFactory::MeshFactory()
 {
+	
 	// Crashes the engine on compilation ("FObjectFinder must be used inside of a constructor"...?)
 	// but still compiles successfully and works fine after restarting
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BasicBallCollision(TEXT("/Game/Rolling/Meshes/BallMesh.BallMesh"));
@@ -35,8 +36,6 @@ MeshFactory::MeshFactory()
 	Meshes[9] = HolyHandGranade.Object;
 	Meshes[10] = KoopaShell.Object;
 	Meshes[11] = InterlockedMobiusStrips.Object;
-
-	
 }
 
 UStaticMesh* MeshFactory::getMeshFromID(int n)

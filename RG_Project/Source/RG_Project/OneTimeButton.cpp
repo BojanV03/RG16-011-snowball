@@ -31,9 +31,9 @@ void AOneTimeButton::BeginOverlap(UPrimitiveComponent * OverlapedComponent, AAct
 	{
 		activated = true;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("PROSAO"));
-		//Don't call your functions directly, use the 'Execute_' prefix
-		//the Execute_ReactToHighNoon and Execute_ReactToMidnight are generated on compile
-		//you may need to compile before these functions will appear
+		// Don't call your functions directly, use the 'Execute_' prefix
+		// the Execute_ReactToHighNoon and Execute_ReactToMidnight are generated on compile
+		// you may need to compile before these functions will appear
 //		iTarget->Execute_Activate(OtherActor);
 		iTarget->Execute_Activate(Target);
 		Mesh->SetPlayRate(1.5);

@@ -14,21 +14,13 @@ public:
 
 	TArray<AActor*> BallArray;
 
-	UPROPERTY(EditAnywhere, Category = RollingCodeGamemode)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RollingCodeGamemode)
 		int CurrentBallIndex;
 
-	UPROPERTY(EditAnywhere, Category = RollingCodeGamemode)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RollingCodeGamemode)
 		int FPS;
 
-	MeshFactory BallMeshFactory = MeshFactory();
-
-
-
+	MeshFactory BallMeshFactory;
 
 	virtual void Tick(float DeltaSeconds) override;
-//	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = RollingCodeGamemode)
-//		void setBallSkinID(int n);
 };
-
-
-

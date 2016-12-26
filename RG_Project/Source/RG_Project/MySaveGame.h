@@ -8,12 +8,13 @@
 /**
  * 
  */
+
 UCLASS()
 class RG_PROJECT_API UMySaveGame : public USaveGame
 {
 	GENERATED_BODY()
 	
 	public:
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RollingCodeGamemode)
+		UPROPERTY(BlueprintReadWrite, Category = SaveGame)
 			int BallSkinID;	
 };

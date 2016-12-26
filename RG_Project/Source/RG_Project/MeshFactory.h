@@ -14,10 +14,10 @@ public:
 
 	MeshFactory();
 
-	UPROPERTY(EditAnywhere, Category = RollingCodeGamemode)
+	UPROPERTY()
 		UStaticMesh* Meshes[12];
 
-	UPROPERTY(EditAnywhere, Category = RollingCodeGamemode)
+	UPROPERTY()
 		UStaticMesh* SphereMesh;
 
 	UStaticMesh* getMeshFromID(int n);
