@@ -1,27 +1,32 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "RG_Project.h"
+#include "MySaveGame.h"
+#include "MeshFactory.h"
 #include "RollingCodeBall.h"
 
 #define PI 3.1415926f
 #define CalculateSphereVolume(r) (4.0f*r*r*r/3.0f)*PI
+
 ARollingCodeBall::ARollingCodeBall()
 {
+	// Preparing all the Meshes
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallMesh(TEXT("/Game/Rolling/Meshes/BallMesh.BallMesh"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallSkinMesh(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/AwesomeBall/AwesomeBall.AwesomeBall'"));
 
 	// Create mesh component for the ball
 	Ball = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Ball0"));
 	Ball->SetStaticMesh(BallMesh.Object);
 	Ball->BodyInstance.SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
 	Ball->SetSimulatePhysics(true);
-	Ball->SetAngularDamping(0.3f);
-	Ball->SetLinearDamping(0.7f);
+	Ball->SetAngularDamping(0.5f);
+	Ball->SetLinearDamping(0.5f);
 	Ball->SetEnableGravity(true);
-	Ball->BodyInstance.MassScale = 3.5f;
-	Ball->BodyInstance.MaxAngularVelocity = 800.0f;
+	Ball->BodyInstance.MassScale = 2.666f;
 	Ball->SetNotifyRigidBodyCollision(true);
 	Ball->SetMassScale("None", Ball->RelativeScale3D.GetAbsMax() * MassScaleMultiplier);
 	Ball->SetVisibility(false);
+	
 	RootComponent = Ball;
 
 	// Create a camera boom attached to the root (ball)
@@ -35,7 +40,6 @@ ARollingCodeBall::ARollingCodeBall()
 	SpringArm->CameraLagSpeed = 3.0f;
 	SpringArm->bDoCollisionTest = true;
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallSkinMesh(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/EyeBall/Eyeball.Eyeball'"));
 	//
 	BallSkin = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallSkin"));
 	BallSkin->SetupAttachment(RootComponent);
@@ -50,10 +54,10 @@ ARollingCodeBall::ARollingCodeBall()
 
 	// Set up forces
 	RollTorque = 50000000.0f;
-	JumpImpulse = 700.0f;
+	JumpImpulse = 800.0f;
 	// Other variables
 	bCanJump = true; 
-	MassScaleMultiplier = 3.5f;
+	MassScaleMultiplier = 2.666f;
 	bIsCameraAttached = true;
 	bCanMerge = false;
 	bOnFire = false;
@@ -94,6 +98,8 @@ void ARollingCodeBall::MoveRight(float Val)
 	float radiusTimesMass = Ball->GetMass() * Ball->RelativeScale3D.GetMax();
 	float intensity = -1.0f * (Val * RollTorque * radiusTimesMass) / 1000.0f;
 
+	GEngine->AddOnScreenDebugMessage(0, 0.0f, FColor::Black, FString::Printf(TEXT("Right: %f"), intensity));
+
 	FVector RightVector = SpringArm->GetForwardVector();
 	RightVector = FVector(RightVector.X, RightVector.Y, 0.0f);
 	RightVector.Normalize();
@@ -106,6 +112,8 @@ void ARollingCodeBall::MoveForward(float Val)
 {
 	float radiusTimesMass = Ball->GetMass() * Ball->RelativeScale3D.GetMax();
 	float intensity = (Val * RollTorque * radiusTimesMass) / 1000.0f;
+
+	GEngine->AddOnScreenDebugMessage(0, 0.0f, FColor::Black, FString::Printf(TEXT("Forward: %f"), intensity));
 
 	FVector ForwardVector = SpringArm->GetForwardVector();
 	ForwardVector = FVector(ForwardVector.Y*-1, ForwardVector.X, 0.0f);
@@ -161,9 +169,10 @@ void ARollingCodeBall::CamRotateRight(float Val)
 void ARollingCodeBall::CamRotateUp(float Val)
 {
 	FRotator currentRotation = SpringArm->GetComponentRotation();
-	if (FMath::Abs(Val * MouseSensitivity + currentRotation.Pitch) < 89.98)
+	if (FMath::Abs(Val * MouseSensitivity + currentRotation.Pitch) < 89.5)
 	{
 		SpringArm->SetWorldRotation(FRotator(Val * MouseSensitivity + currentRotation.Pitch, currentRotation.Yaw, currentRotation.Roll));
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Orange, FString::Printf(TEXT("CameraAngle: %.2f"), FMath::Abs(Val * MouseSensitivity + currentRotation.Pitch)));
 	}
 }
 
@@ -188,7 +197,7 @@ void ARollingCodeBall::Resize(float Val)
 	Ball->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
 	float maxScale = Ball->RelativeScale3D.GetMax();
-	float minScale = Ball->RelativeScale3D.GetMax();
+	float minScale = Ball->RelativeScale3D.GetMin();
 
 	minScale += Val;
 	maxScale += Val;
@@ -203,6 +212,7 @@ void ARollingCodeBall::Resize(float Val)
 		Ball->SetMassScale("None", maxScale * MassScaleMultiplier);
 	}
 
+	Radius = maxScale;
 	Ball->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
@@ -248,11 +258,11 @@ void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	bCanJump = true;
 	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Emerald, FString::Printf(TEXT("CanMerge: %d"), bCanMerge ? 1 : 0));
 
-	if (Other == nullptr || OtherComp->GetMaterial(0) == nullptr)	//leave if the Other object is not an AActor
+	if (Other == nullptr)	//leave if the Other object is not an AActor
 		return;
 
 	ARollingCodeBall *otherBall = Cast<ARollingCodeBall>(Other);
-	
+
 	//Merge 2 balls
 	if (otherBall != nullptr && bCanMerge)
 	{
@@ -271,14 +281,15 @@ void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 		Other->Destroy();
 		Ball->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	} // Increase size
-	else if (Other->GetName().StartsWith("Landscape", ESearchCase::IgnoreCase) ||
-			 OtherComp->GetMaterial(0)->GetName().StartsWith("Snow"))
+	else if (Other->GetName().StartsWith("Landscape", ESearchCase::IgnoreCase) || 
+			(OtherComp != nullptr && OtherComp->GetMaterial(0) != nullptr && 
+				OtherComp->GetMaterial(0)->GetName().StartsWith("Snow")))
 	{
 		float resizeValue = (1.0f / Ball->GetMass()) * (120.0f / (GameMode->FPS + 1));
 		resizeValue = FMath::Clamp(resizeValue, 0.0f, 0.003f);
 		Resize(resizeValue);
 	} // Decrease size
-	else if (OtherComp->GetMaterial(0)->GetName().StartsWith("Hot"))
+	else if (OtherComp!= nullptr && OtherComp->GetMaterial(0) != nullptr && OtherComp->GetMaterial(0)->GetName().StartsWith("Hot"))
 	{
 		float resizeValue = (1.0f / Ball->GetMass()) * 5.0f * (120.0f / (GameMode->FPS + 1));
 		resizeValue = FMath::Clamp(resizeValue, 0.0f, 0.01f);
@@ -351,6 +362,18 @@ void ARollingCodeBall::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "WorldNull");
 	}
 	GameMode->BallArray.AddUnique(this);
+
+
+	// Load BallSkin from SaveGame	
+	UMySaveGame* LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
+	LoadGameInstance = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot("0", 0));
+	if (LoadGameInstance != nullptr)
+	{
+		BallSkinID = LoadGameInstance->BallSkinID;
+		Ball->SetStaticMesh(GameMode->BallMeshFactory.getMeshFromID(BallSkinID));
+		BallSkin->SetStaticMesh(GameMode->BallMeshFactory.getSkinFromID(BallSkinID));
+	}
+	Resize(0.0f);
 }
 
 void ARollingCodeBall::Destroyed()

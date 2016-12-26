@@ -78,7 +78,13 @@ public:
 	/** Indicates whether we can currently jump, use to prevent double jumping */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		bool bCanJump;
-	
+
+	UPROPERTY(EditAnywhere, Category = Ball)
+		int BallSkinID;
+
+	/** Handle ball resizing */
+	UFUNCTION(BlueprintCallable, Category = Ball)
+		void Resize(float Val);
 
 protected:
 
@@ -105,9 +111,6 @@ protected:
 
 	/** Handle mouse scroll */
 	void CamZoomIn(float Val);
-
-	/** Handle ball resizing */
-	void Resize(float Val);
 
 	/** Increase ball when key is pressed */
 	void IncreaseSize();

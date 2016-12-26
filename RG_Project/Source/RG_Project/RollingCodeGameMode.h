@@ -1,6 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/GameModeBase.h"
+#include "MeshFactory.h"
 #include "RollingCodeGameMode.generated.h"
 
 UCLASS(minimalapi)
@@ -12,12 +13,21 @@ public:
 	ARollingCodeGameMode();
 
 	TArray<AActor*> BallArray;
-	UPROPERTY(EditAnywhere, Category = Gamemode)
+
+	UPROPERTY(EditAnywhere, Category = RollingCodeGamemode)
 		int CurrentBallIndex;
-	UPROPERTY(EditAnywhere, Category = Gamemode)
+
+	UPROPERTY(EditAnywhere, Category = RollingCodeGamemode)
 		int FPS;
 
+	MeshFactory BallMeshFactory = MeshFactory();
+
+
+
+
 	virtual void Tick(float DeltaSeconds) override;
+//	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = RollingCodeGamemode)
+//		void setBallSkinID(int n);
 };
 
 
