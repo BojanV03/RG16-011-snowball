@@ -25,6 +25,11 @@ class ARollingCodeBall : public APawn
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ball, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ball, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* CameraBoxCollision;
+
+
+
 	/** Snow/Fire */
 	UPROPERTY(VisibleAnywhere, Category = Ball)
 		UParticleSystemComponent* SnowParticle;

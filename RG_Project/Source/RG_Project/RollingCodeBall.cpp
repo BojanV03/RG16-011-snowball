@@ -54,6 +54,12 @@ ARollingCodeBall::ARollingCodeBall()
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
+	CameraBoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
+	CameraBoxCollision->RelativeScale3D = FVector(0.1f, 0.1f, 0.1f);
+	CameraBoxCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CameraBoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	CameraBoxCollision->SetupAttachment(Camera);
+
 	// Create the Snow particle system
 	SnowParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("SnowParticle"));
 	SnowParticle->SetupAttachment(Camera, "None");
@@ -88,7 +94,8 @@ ARollingCodeBall::ARollingCodeBall()
 
 void ARollingCodeBall::activateSnow()
 {
-	SnowParticle->Activate(false);
+	if(!bOnFire)
+		SnowParticle->Activate(false);
 }
 
 void ARollingCodeBall::deactivateSnow()
@@ -392,6 +399,9 @@ void ARollingCodeBall::BeginPlay()
 {
 	Super::BeginPlay();
 	// Get GameMode reference
+	// Trigger camera overlap
+	CameraBoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CameraBoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	if (GetWorld() != nullptr)
 	{
 		if (GetWorld()->GetAuthGameMode() != nullptr)
@@ -450,6 +460,8 @@ void ARollingCodeBall::Tick(float DeltaSeconds)
 	// if it is a fireball
 	if (bOnFire)
 		FireParticle->SetWorldRotation(FRotator(0.0f, 0.0f, 0.0f));
+	else
+		SnowParticle->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 
 }
 
