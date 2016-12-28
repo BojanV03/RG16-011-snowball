@@ -7,12 +7,14 @@
 
 #define PI 3.1415926f
 #define CalculateSphereVolume(r) (4.0f*r*r*r/3.0f)*PI
+#define FIREBALL_SKIN 8
 
 ARollingCodeBall::ARollingCodeBall()
 {
-	// Preparing all the Meshes
+	// Preparing standard Meshes
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallMesh(TEXT("/Game/Rolling/Meshes/BallMesh.BallMesh"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallSkinMesh(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/AwesomeBall/AwesomeBall.AwesomeBall'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallSkinMesh(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/Snowball/Snowball.Snowball'"));
+	// Preparing particle systems
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> SnowParticles(TEXT("ParticleSystem'/Game/Particles/Snow/Snow.Snow'"));
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> FireParticles(TEXT("ParticleSystem'/Game/Particles/Fire/P_Fire.P_Fire'"));
 
@@ -75,7 +77,6 @@ ARollingCodeBall::ARollingCodeBall()
 	FireParticle->SetRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
 	FireParticle->Template = FireParticles.Object;
 
-
 	// Set up forces
 	RollTorque = 50000000.0f;
 	JumpImpulse = 800.0f;
@@ -85,7 +86,6 @@ ARollingCodeBall::ARollingCodeBall()
 	bIsCameraAttached = true;
 	bCanMerge = false;
 	bOnFire = false;
-	Radius = 100.0f;
 	MouseSensitivity = 5.0f;
 	ScrollSensitivity = 150.0f;
 
@@ -118,13 +118,14 @@ void ARollingCodeBall::deactivateFire()
 
 void ARollingCodeBall::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	// set up gameplay key bindings
+	// set up gameplay key axis bindings
 	PlayerInputComponent->BindAxis("MoveRight", this, &ARollingCodeBall::MoveRight);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ARollingCodeBall::MoveForward);
 	PlayerInputComponent->BindAxis("CamRotateUp", this, &ARollingCodeBall::CamRotateUp);
 	PlayerInputComponent->BindAxis("CamRotateRight", this, &ARollingCodeBall::CamRotateRight);
 	PlayerInputComponent->BindAxis("CamZoomIn", this, &ARollingCodeBall::CamZoomIn);
 
+	// set up gameplay key action bindings
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ARollingCodeBall::Jump);
 	PlayerInputComponent->BindAction("CamReset", IE_Pressed, this, &ARollingCodeBall::CamReset);
 	PlayerInputComponent->BindAction("CamDetach", IE_Pressed, this, &ARollingCodeBall::CamDetach);
@@ -134,14 +135,13 @@ void ARollingCodeBall::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("ToggleMerge", IE_Pressed, this, &ARollingCodeBall::ToggleMerge);
 	PlayerInputComponent->BindAction("ChangeBallForward", IE_Pressed, this, &ARollingCodeBall::ChangeBallForward);
 	PlayerInputComponent->BindAction("ChangeBallBackward", IE_Pressed, this, &ARollingCodeBall::ChangeBallBackward);
-
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARollingCodeBall::JumpStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ARollingCodeBall::JumpStopped);
 }
 
 void ARollingCodeBall::MoveRight(float Val)
 {
+	// Torque = Radius * Force;
+	// Force = Mass * Acceleration;
+	// => Torque = Radius * Mass * Acceleration
 	float radiusTimesMass = Ball->GetMass() * Ball->RelativeScale3D.GetMax();
 	float intensity = -1.0f * (Val * RollTorque * radiusTimesMass) / 1000.0f;
 
@@ -178,18 +178,20 @@ void ARollingCodeBall::Jump()
 		// but still maintain the same impulse between 0 and 1 UUnits
 		float subtrahend = FMath::Clamp(Ball->RelativeScale3D.GetAbsMax(), 1.f, 5.f);		
 		subtrahend -= 1; // This is now in a range between 0-4
-		// We want a linear decrease all the way to 0in the subtrahend of the zImpulse equation
+		// We want a linear decrease all the way to 0 in the subtrahend of the zImpulse equation
 		subtrahend *= 170; // therefore we scale it to fit the 0-700 region
 		float zImpulse = Ball->GetMass() * (JumpImpulse - subtrahend);
 		// Add impulse to the ball
 		Ball->AddImpulse(FVector(0.f, 0.f, zImpulse));
-bCanJump = false;	// And reenable jumping
+		bCanJump = false;	// And reenable jumping
 	}
 }
 
 void ARollingCodeBall::CamReset()
 {
+	// Set distance to ball to 1200 Unreal Units
 	SpringArm->TargetArmLength = 1200;
+	// Set the Pitch to -45 degrees, roll to 0 degrees
 	SpringArm->SetWorldRotation(FRotator(-45.0f, SpringArm->GetComponentRotation().Yaw, 0.0f));
 }
 
@@ -210,7 +212,6 @@ void ARollingCodeBall::CamRotateRight(float Val)
 {
 	FRotator currentRotation = SpringArm->GetComponentRotation();
 	SpringArm->SetWorldRotation(FRotator(currentRotation.Pitch, Val * MouseSensitivity + currentRotation.Yaw, currentRotation.Roll));
-
 }
 
 void ARollingCodeBall::CamRotateUp(float Val)
@@ -226,6 +227,8 @@ void ARollingCodeBall::CamRotateUp(float Val)
 void ARollingCodeBall::CamZoomIn(float Val)
 {
 	float newLength = (-1.0f*Val*ScrollSensitivity) + SpringArm->TargetArmLength;
+
+	// We don't want negative lengths
 	if (newLength > 1.0f)
 	{
 		SpringArm->TargetArmLength = newLength;
@@ -243,12 +246,15 @@ void ARollingCodeBall::Resize(float Val)
 	// and come back. Achieved this by simply turning off Query, resizing and then turning Query back on
 	Ball->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
+	// minScale and maxScale should be always the same, but maybe i'll add some other objects like eggs
+	// that don't have the same scale values... Just making sure the function always works
 	float maxScale = Ball->RelativeScale3D.GetMax();
 	float minScale = Ball->RelativeScale3D.GetMin();
 
 	minScale += Val;
 	maxScale += Val;
 
+	// Kill it
 	if (minScale < 0.05)
 	{
 		Destroy();
@@ -258,16 +264,21 @@ void ARollingCodeBall::Resize(float Val)
 		Ball->SetRelativeScale3D(Ball->RelativeScale3D + Val);
 		Ball->SetMassScale("None", maxScale * MassScaleMultiplier);
 	}
+	else
+	{
+		Ball->SetRelativeScale3D(FVector(4.99f, 4.99f, 4.99f));
+		Ball->SetMassScale("None", 4.99f * MassScaleMultiplier);
+	}
 
-	Radius = maxScale;
 	Ball->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
-
+// Activates when pressing +, only for development, remove before shipping
 void ARollingCodeBall::IncreaseSize()
 {
 	Resize(0.1f);
 }
 
+// Activates when pressing -, only for development, remove before shipping
 void ARollingCodeBall::DecreaseSize()
 {
 	Resize(-0.1f);
@@ -283,10 +294,13 @@ void ARollingCodeBall::ChangeBallForward()
 	int newIndex = (GameMode->CurrentBallIndex + 1) % (GameMode->BallArray.Num());
 	GEngine->AddOnScreenDebugMessage(-1, 6, FColor::Orange, FString::Printf(TEXT("NewIndex: %d"), newIndex));
 
+	// We want to disable merging so that, when the player is controlling another ball, it should have all the
+	// control over whether merging occurs or not
 	bCanMerge = false;
 	deactivateFire();
 	deactivateSnow();
 
+	// Enable particle systems
 	GetWorld()->GetFirstPlayerController()->Possess((ARollingCodeBall*)GameMode->BallArray[newIndex]);
 	if (bOnFire)
 		((ARollingCodeBall*)GameMode->BallArray[newIndex])->activateFire();
@@ -300,8 +314,16 @@ void ARollingCodeBall::ChangeBallBackward()
 {
 	int newIndex = (GameMode->CurrentBallIndex - 1 + GameMode->BallArray.Num()) % (GameMode->BallArray.Num());
 	GEngine->AddOnScreenDebugMessage(-1, 6, FColor::Orange, FString::Printf(TEXT("NewIndex: %d"), newIndex));
+
 	bCanMerge = false;
+
+	// Enable particle systems
 	GetWorld()->GetFirstPlayerController()->Possess((ARollingCodeBall*)GameMode->BallArray[newIndex]);
+	if (bOnFire)
+		((ARollingCodeBall*)GameMode->BallArray[newIndex])->activateFire();
+	else
+		((ARollingCodeBall*)GameMode->BallArray[newIndex])->activateSnow();
+
 	GameMode->CurrentBallIndex = newIndex;
 }
 
@@ -315,15 +337,18 @@ void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	if (Other == nullptr)	//leave if the Other object is not an AActor
 		return;
 
+	// Try to cast it to a RollingCodeBall
 	ARollingCodeBall *otherBall = Cast<ARollingCodeBall>(Other);
 
-	//Merge 2 balls
+	//	if it's successful, merge 2 balls
 	if (otherBall != nullptr && bCanMerge)
 	{
 		bCanMerge = false;
+		//Disableing/Enabling Query collisions in order to retrigger any volumes the balls happen to be in
 		Ball->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		otherBall->GetBall()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
+		// We want to double the Volume, not the Radius, therefore some maths:
 		FVector newScale;
 		float ballVolume = CalculateSphereVolume(Ball->RelativeScale3D.GetMax());
 		float otherBallVolume = CalculateSphereVolume(otherBall->GetBall()->RelativeScale3D.GetMax());
@@ -350,27 +375,6 @@ void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 		Resize(-resizeValue);
 	}
 }
-// useless
-void ARollingCodeBall::JumpStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	if (bCanJump)
-	{
-		const FVector Impulse = FVector::FVector::FVector(0.f, 0.f, JumpImpulse);
-		Ball->AddImpulse(Impulse);
-		bCanJump = false;
-	}
-
-}
-// useless
-void ARollingCodeBall::JumpStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	if (bCanJump)
-	{
-		const FVector Impulse = FVector(0.f, 0.f, JumpImpulse);
-		Ball->AddImpulse(Impulse);
-		bCanJump = false;
-	}
-}
 
 void ARollingCodeBall::Split()
 {
@@ -379,6 +383,7 @@ void ARollingCodeBall::Split()
 	bCanMerge = false;
 
 	float newScale = Ball->RelativeScale3D.GetMax();
+	// We want to halve the Volume of the sphere, not the Radius, therefore some math:
 	newScale /= FMath::Pow(2.0f, 1.0f / 3.0f);
 	Ball->SetRelativeScale3D(FVector(newScale, newScale, newScale));
 	Ball->SetMassScale("None", newScale*MassScaleMultiplier);
@@ -386,8 +391,10 @@ void ARollingCodeBall::Split()
 	FVector spawnLocation;
 	spawnLocation.X = Ball->GetComponentLocation().X;
 	spawnLocation.Y = Ball->GetComponentLocation().Y;
-	spawnLocation.Z = Ball->GetComponentLocation().Z + newScale*200;
+	spawnLocation.Z = Ball->GetComponentLocation().Z + newScale*110;
+	// Make a transfor using the calculated Location/Scale and inherited Rotation
 	FTransform spawnTransform = FTransform(Ball->GetComponentRotation(), spawnLocation, Ball->RelativeScale3D);
+	
 	FActorSpawnParameters F;
 	F.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	GetWorld()->SpawnActor(ARollingCodeBall::GetClass(), &spawnTransform, F);
@@ -399,9 +406,11 @@ void ARollingCodeBall::BeginPlay()
 {
 	Super::BeginPlay();
 	// Get GameMode reference
-	// Trigger camera overlap
+	// Trigger camera overlap (if splitting while insideof a camera trigger volume, we want to activate it)
+	// it is done at the end of this function
 	CameraBoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	CameraBoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+
+	// Set GameMode
 	if (GetWorld() != nullptr)
 	{
 		if (GetWorld()->GetAuthGameMode() != nullptr)
@@ -434,7 +443,7 @@ void ARollingCodeBall::BeginPlay()
 		// if it is the first ball added to the array we want the particle effects
 		if (GameMode->BallArray.Num() == 1)
 		{
-			if (BallSkinID == 8)
+			if (BallSkinID == FIREBALL_SKIN)
 			{
 				bOnFire = true;
 				SnowParticle->Deactivate();
@@ -452,17 +461,18 @@ void ARollingCodeBall::BeginPlay()
 			FireParticle->Deactivate();
 		}
 	}
+	CameraBoxCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	Resize(0.0f);
 }
 
 void ARollingCodeBall::Tick(float DeltaSeconds)
 {
-	// if it is a fireball
+	// if it is a fireball, we don't want it to inherit the Balls rotation
 	if (bOnFire)
 		FireParticle->SetWorldRotation(FRotator(0.0f, 0.0f, 0.0f));
+	// If it's snow, we don't want it to inherit Camera's Scale
 	else
 		SnowParticle->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
-
 }
 
 void ARollingCodeBall::Destroyed()

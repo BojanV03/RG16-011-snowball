@@ -12,13 +12,11 @@ class UButtonActivated : public UInterface
 };
 
 /**
- * 
+ * Interface implemented by classes that can be activated by buttons
  */
 class RG_PROJECT_API IButtonActivated
 {
 	GENERATED_IINTERFACE_BODY()
-
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	// these functions can be overridden and called in Blueprints
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ButtonActivated")

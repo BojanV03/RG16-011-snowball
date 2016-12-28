@@ -3,11 +3,13 @@
 #include "RG_Project.h"
 #include "MeshFactory.h"
 
+#define CUSTOM_SKIN_COLLISIONS 9
+
 MeshFactory::MeshFactory()
 {
 	
 	// Crashes the engine on compilation ("FObjectFinder must be used inside of a constructor"...?)
-	// but still compiles successfully and works fine after restarting
+	// but still compiles successfully and works fine after restarting?
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BasicBallCollision(TEXT("/Game/Rolling/Meshes/BallMesh.BallMesh"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SnowBallSkin(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/Snowball/Snowball.Snowball'"));	
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> WireSphere(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/WireSphere/WireSphere.WireSphere'"));
@@ -33,14 +35,14 @@ MeshFactory::MeshFactory()
 	Meshes[6] = GolfBall.Object;
 	Meshes[7] = ReflectionSphere.Object;
 	Meshes[8] = Fireball.Object;
-	Meshes[9] = HolyHandGranade.Object;
-	Meshes[10] = KoopaShell.Object;
-	Meshes[11] = InterlockedMobiusStrips.Object;
+	Meshes[CUSTOM_SKIN_COLLISIONS    ] = HolyHandGranade.Object;
+	Meshes[CUSTOM_SKIN_COLLISIONS + 1] = KoopaShell.Object;
+	Meshes[CUSTOM_SKIN_COLLISIONS + 2] = InterlockedMobiusStrips.Object;
 }
 
 UStaticMesh* MeshFactory::getMeshFromID(int n)
 {
-	if (n >= 9)
+	if (n >= CUSTOM_SKIN_COLLISIONS)
 		return Meshes[n];
 	else
 		return SphereMesh;
@@ -54,5 +56,5 @@ UStaticMesh* MeshFactory::getSkinFromID(int n)
 	
 MeshFactory::~MeshFactory()
 {
-
+	
 }

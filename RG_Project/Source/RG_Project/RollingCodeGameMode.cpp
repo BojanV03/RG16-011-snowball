@@ -8,7 +8,9 @@ ARollingCodeGameMode::ARollingCodeGameMode()
 {
 	// set default pawn class to our ball
 	DefaultPawnClass = ARollingCodeBall::StaticClass();
+	// We need Tick in order to count FPS
 	PrimaryActorTick.bCanEverTick = true;
+
 	BallMeshFactory = MeshFactory();
 }
 

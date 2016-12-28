@@ -7,11 +7,26 @@
 // Sets default values
 AComplexDoor::AComplexDoor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DoorMeshContainer(TEXT("SkeletalMesh'/Game/Geometry/Skeletals/ComplexDoor/ComplexDoor.ComplexDoor'"));
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	DoorMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
+
+	if (DoorMeshContainer.Object != nullptr)
+	{
+		DoorMesh->SkeletalMesh = DoorMeshContainer.Object;
+		DoorMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		DoorMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+		DoorMesh->AnimationData.bSavedLooping = false;
+		DoorMesh->AnimationData.bSavedPlaying = false;
+		static ConstructorHelpers::FObjectFinder<UAnimationAsset> AnimContainer(TEXT("AnimSequence'/Game/Geometry/Skeletals/ComplexDoor/ComplexDoor_Anim.ComplexDoor_Anim'"));
+		if (AnimContainer.Succeeded())
+		{
+			DoorMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+			DoorMesh->AnimationData.AnimToPlay = AnimContainer.Object;
+		}
+
+	}
 
 	RootComponent = Root;
 	DoorMesh->SetupAttachment(RootComponent);
@@ -25,33 +40,26 @@ void AComplexDoor::BeginPlay()
 	count = 0;
 }
 
-// Called every frame
-void AComplexDoor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AComplexDoor::Activate_Implementation()
 {
-	//	DoorMesh->PlayAnimation(DoorMesh, true);
-	FString strDebug = "";
-	count++;
-	strDebug.AppendInt(count);
-	strDebug.Append(" out of ");
-	strDebug.AppendInt(numberOfActivators);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, strDebug);
+	count++;	// If we activated enough buttons, play the animation
 	if (count == numberOfActivators)
 	{
 		DoorMesh->SetPlayRate(2);
 		DoorMesh->Play(false);
 	}
+
+	FString strDebug = "";
+	strDebug.AppendInt(count);
+	strDebug.Append(" out of ");
+	strDebug.AppendInt(numberOfActivators);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, strDebug);
 	return;
 }
 
 void AComplexDoor::Deactivate_Implementation()
 {
-	count--;
+	count--;	
 	if (count == numberOfActivators - 1)
 	{
 		DoorMesh->SetPlayRate(-2);

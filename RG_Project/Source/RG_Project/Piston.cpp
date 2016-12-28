@@ -7,11 +7,6 @@
 // Sets default values
 APiston::APiston()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-//	USkeletalMesh *MeshContainer;
-
-
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	PistonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 
@@ -43,13 +38,6 @@ void APiston::BeginPlay()
 
 	//Set piston in it's starting position
 	Deactivate_Implementation();
-}
-
-// Called every frame
-void APiston::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void APiston::Activate_Implementation()

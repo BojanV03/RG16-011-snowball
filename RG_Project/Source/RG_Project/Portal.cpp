@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "RG_Project.h"
+#include "RollingCodeBall.h"
 #include "Portal.h"
 
 
@@ -18,13 +19,15 @@ APortal::APortal()
 
 	RootComponent = Root;
 
+	//  Deprecated functions
+	//	PortalMesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//	PortalPlane->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//	Activator->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
 	PortalMesh->SetupAttachment(RootComponent);
 	PortalPlane->SetupAttachment(RootComponent);
 	Activator->SetupAttachment(RootComponent);
-//	PortalMesh->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-//	PortalPlane->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-//	Activator->AttachToComponent(Root, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	
+
 	PortalPlane->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	PortalPlane->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	PortalPlane->OnComponentBeginOverlap.AddDynamic(this, &APortal::PortalBeginOverlap);
@@ -53,17 +56,22 @@ void APortal::Tick( float DeltaTime )
 		Location += CameraTransform.GetLocation();
 
 //		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetTransform().GetLocation().ToString());
-
-		PortalView->SetWorldLocationAndRotation(Location, CameraTransform.GetRotation(), false);
-		PortalView->CaptureScene();
+		if (PortalView != nullptr)
+		{
+			PortalView->SetWorldLocationAndRotation(Location, CameraTransform.GetRotation(), false);
+			PortalView->CaptureScene();
+		}
 	}
 }
 
 void APortal::PortalBeginOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	isPortalActivated = false;
-	OtherActor->SetActorLocation(TargetPortal->GetActorLocation());
-	
+	ARollingCodeBall *ball = Cast<ARollingCodeBall>(OtherActor);
+	if (ball != nullptr)	// If the overlapping actor is a ball, teleport it
+	{
+		isPortalActivated = false;
+		OtherActor->SetActorLocation(TargetPortal->GetActorLocation());
+	}	
 }
 
 void APortal::ActivatorBeginOverlap(UPrimitiveComponent * OverlapedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp2, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)

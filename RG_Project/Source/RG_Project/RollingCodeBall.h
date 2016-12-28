@@ -30,25 +30,29 @@ class ARollingCodeBall : public APawn
 
 
 
-	/** Snow/Fire */
+	/** Snow Particle System*/
 	UPROPERTY(VisibleAnywhere, Category = Ball)
 		UParticleSystemComponent* SnowParticle;
-
+	/** Fire Particle System*/
 	UPROPERTY(VisibleAnywhere, Category = Ball)
 		UParticleSystemComponent* FireParticle;
 
 public:
 	ARollingCodeBall();
 
+	/** Activate Snow Particle System*/
 	UFUNCTION(BlueprintCallable, Category = Ball)
 	void activateSnow();
 
+	/** Deactivate Snow Particle System*/
 	UFUNCTION(BlueprintCallable, Category = Ball)
 	void deactivateSnow();
 
+	/** Activate Fire Particle System*/
 	UFUNCTION(BlueprintCallable, Category = Ball)
 	void activateFire();
 
+	/** Deactivate Fire Particle System*/
 	UFUNCTION(BlueprintCallable, Category = Ball)
 	void deactivateFire();
 
@@ -64,15 +68,11 @@ public:
 
 	/** Vertical impulse to apply when pressing jump */
 	UPROPERTY(EditAnywhere, Category=Ball)
-	float JumpImpulse;
+		float JumpImpulse;
 
 	/** Torque to apply when trying to roll ball */
 	UPROPERTY(EditAnywhere, Category=Ball)
-	float RollTorque;
-
-	/** Radius of the ball */
-	UPROPERTY(EditAnywhere, Category = Ball)
-		float Radius;
+		float RollTorque;
 
 	/** Reference to the currently used game mode */
 	UPROPERTY(EditAnywhere, Category = Ball)
@@ -98,8 +98,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Ball)
 		bool bCanMerge;
 
-	//TODO
-	/** Setting this to true disables the Snow particle system and enables the Fire particle system*/
+	/** Indicates whether the ball is on fire or not*/
 	UPROPERTY(EditAnywhere, Category = Ball)
 		bool bOnFire;
 
@@ -164,17 +163,11 @@ protected:
 	// Input Axis/Action setup
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	/** Handler for when a touch input begins. */
-	void JumpStarted(ETouchIndex::Type FingerIndex, FVector Location);
-
-	/** Handler for when a touch input stops. */
-	void JumpStopped(ETouchIndex::Type FingerIndex, FVector Location);
-
 public:
-	/** Returns Ball subobject **/
+	/** Returns Ball subobject */
 	FORCEINLINE class UStaticMeshComponent* GetBall() const { return Ball; }
-	/** Returns SpringArm subobject **/
+	/** Returns SpringArm subobject */
 	FORCEINLINE class USpringArmComponent* GetSpringArm() const { return SpringArm; }
-	/** Returns Camera subobject **/
+	/** Returns Camera subobject */
 	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
 };

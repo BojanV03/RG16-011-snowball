@@ -14,12 +14,9 @@ public:
 	// Sets default values for this actor's properties
 	AStair();
 
-
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	FTimerHandle ActivateTimerHandle;
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 	// Number of balls in the vicinity of the Stair
@@ -48,6 +45,7 @@ public:
 		void EndOverlap(class UPrimitiveComponent* OverlapedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp2, int32 OtherBodyIndex);
 
 	// For some reason using a timer crashes my entire project which is why i'm sticking with the Tick event
+//	FTimerHandle ActivateTimerHandle;
 	UFUNCTION()
 		void ActivateTimer();
 };

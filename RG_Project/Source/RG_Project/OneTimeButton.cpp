@@ -10,6 +10,7 @@ AOneTimeButton::AOneTimeButton()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshContainer(TEXT("SkeletalMesh'/Game/Geometry/Skeletals/OneTimeButton/OneTimeButtonSkeletal.OneTimeButtonSkeletal'"));
 	// Allow these objects to be set/modified from within UE4
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("StaticMesh"));
@@ -18,6 +19,22 @@ AOneTimeButton::AOneTimeButton()
 	RootComponent = Root;
 	Mesh->SetupAttachment(RootComponent);
 	CollisionDetection->SetupAttachment(RootComponent);
+
+	// Set up skeletal mesh and animations
+	if (MeshContainer.Succeeded())
+	{
+		Mesh->SkeletalMesh = MeshContainer.Object;
+		Mesh->AnimationData.bSavedLooping = false;
+		Mesh->AnimationData.bSavedPlaying = false;
+		static ConstructorHelpers::FObjectFinder<UAnimationAsset> AnimContainer(TEXT("AnimSequence'/Game/Geometry/Skeletals/OneTimeButton/OneTimeButtonSkeletal_Anim.OneTimeButtonSkeletal_Anim'"));
+		if (AnimContainer.Succeeded())
+		{
+			Mesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+			Mesh->AnimationData.AnimToPlay = AnimContainer.Object;
+		}
+		Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	}
 
 	CollisionDetection->OnComponentBeginOverlap.AddDynamic(this, &AOneTimeButton::BeginOverlap);
 	CollisionDetection->OnComponentEndOverlap.AddDynamic(this, &AOneTimeButton::EndOverlap);

@@ -18,23 +18,20 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Called every frame
-	virtual void Tick(float DeltaSeconds) override;
-
-
+	/** Ammount of buttons that are needed to be pressed in order to activate the door*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ComplexDoor")
 		int numberOfActivators;
-
+	/** SkeletalMesh subobject*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ComplexDoor")
 		USkeletalMeshComponent *DoorMesh;
-
+	/** Root of the object*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ComplexDoor")
 		USceneComponent *Root;
-
+	/** Number of activated buttons */
 	int count;
+
 	// This function is called when the button is Activated
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ComplexDoor")
-
 		void Activate();
 	virtual void Activate_Implementation() override;
 	// ~||~										  Deactivated

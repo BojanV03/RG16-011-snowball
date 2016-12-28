@@ -24,13 +24,13 @@ public:
 	bool activated = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")
 		USceneComponent *Root;
-
+	/** SkeletalMesh subobject */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")
 		USkeletalMeshComponent *Mesh;
-
+	/** Box Component used for detecting collisions with the ARollingCodeBall */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")
 		UBoxComponent *CollisionDetection;
-	
+	/** Target to be activated */	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OneTimeButton")
 		AActor *Target;
 	

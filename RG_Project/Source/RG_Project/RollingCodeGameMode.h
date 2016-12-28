@@ -11,15 +11,15 @@ class ARollingCodeGameMode : public AGameModeBase
 
 public:
 	ARollingCodeGameMode();
-
+	// Contains and allows us to iterate through all the balls that are currently in the level
 	TArray<AActor*> BallArray;
-
+	// Index of the possessed ball
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RollingCodeGamemode)
 		int CurrentBallIndex;
-
+	// FPS Counter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RollingCodeGamemode)
 		int FPS;
-
+	// Used for getting the mesh/skin for the selected ball
 	MeshFactory BallMeshFactory;
 
 	virtual void Tick(float DeltaSeconds) override;
