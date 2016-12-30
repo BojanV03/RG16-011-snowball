@@ -95,7 +95,7 @@ public:
 		bool bIsCameraAttached;
 
 	/** Should this ball merge with another one upon impact*/
-	UPROPERTY(EditAnywhere, Category = Ball)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ball)
 		bool bCanMerge;
 
 	/** Indicates whether the ball is on fire or not*/
