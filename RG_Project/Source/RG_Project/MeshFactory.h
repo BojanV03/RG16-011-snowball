@@ -10,7 +10,7 @@ public:
 	MeshFactory();
 
 	UPROPERTY()
-		UStaticMesh* Meshes[12];
+		UStaticMesh* Meshes[14];
 
 	UPROPERTY()
 		UStaticMesh* SphereMesh;
