@@ -2,6 +2,9 @@
 
 A 3D Rolling Puzzle Platformer (if that genre even exists) made in Unreal Engine 4. The main purpose of this project is for me to learn the basics of everything that the engine has to offer all while using my Computer Graphics course as an excuse to spend multiple hours each day making a video game instead of studying maths.
 
+Version 1 Trailer: https://www.youtube.com/watch?v=GqEHz2b0_e0
+Version 1 Gameplay: https://www.youtube.com/watch?v=KexRziw5L7E
+
 ###Keyboard Controls
 | Key        | Action           |
 |:-------------:|:-------------:|
@@ -12,6 +15,7 @@ A 3D Rolling Puzzle Platformer (if that genre even exists) made in Unreal Engine
 | Shift+Tab      | Change control to the previous ball in the array      |
 | H      | Toggle show HUD      |
 | 1/2/3/4/5/6| potato/low/medium/high/epic/cinematic graphics|
+| C| Toggle controls visibility |
 
 ###Mouse Controls:
 Left mouse button- Toggle merge mode(if on, when you touch another snowball, you will gain all it's mass/volume and it will be destroyed)
@@ -19,6 +23,8 @@ Left mouse button- Toggle merge mode(if on, when you touch another snowball, you
 Scroll up/down- Zoom in/out
 
 Right mouse button- Freeze camera in it's current location
+
+Left mouse button- Show/Hide controls
 
 Screenshots as of 12.15.2016:
 ![unable to show Screenshot](https://raw.githubusercontent.com/MATF-RG16/RG16-011-snowball/master/Progress%20Screenshots/Update_009_Lava.png)
