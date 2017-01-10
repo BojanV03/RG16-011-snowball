@@ -16,7 +16,9 @@ ARollingCodeBall::ARollingCodeBall()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BallSkinMesh(TEXT("StaticMesh'/Game/Geometry/Meshes/Skins/Snowball/Snowball.Snowball'"));
 	// Preparing particle systems
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> SnowParticles(TEXT("ParticleSystem'/Game/Particles/Snow/Snow.Snow'"));
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> FireParticles(TEXT("ParticleSystem'/Game/Particles/Fire/P_Fire.P_Fire'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> FireParticles(TEXT("ParticleSystem'/Game/Particles/Fire/P_Fire.P_Fire'")); 
+	
+	static ConstructorHelpers::FObjectFinder<UMaterial> DecalMaterial(TEXT("Material'/Game/Decals/DCL_Snow_Trail.DCL_Snow_Trail'"));
 
 	// Create mesh component for the ball
 	Ball = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Ball0"));
@@ -88,6 +90,7 @@ ARollingCodeBall::ARollingCodeBall()
 	bOnFire = false;
 	MouseSensitivity = 5.0f;
 	ScrollSensitivity = 150.0f;
+	Decal = DecalMaterial.Object;
 
 	Resize(0.0f);
 }
@@ -332,11 +335,31 @@ void ARollingCodeBall::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
 	bCanJump = true;
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Emerald, FString::Printf(TEXT("CanMerge: %d"), bCanMerge ? 1 : 0));
+
+	FTransform decalSpawnTransform = FTransform(ENoInit::NoInit);
+	decalSpawnTransform.SetLocation(HitLocation);
+	decalSpawnTransform.SetRotation(HitNormal.ToOrientationQuat());
+	decalSpawnTransform.SetScale3D(5*Ball->RelativeScale3D);
+	//		FActorSpawnParameters decalSpawnParameters;
+	//		decalSpawnParameters.bNoFail = true;
+	//		Decal->SetActorTransform(decalSpawnTransform);
+	if (GetWorld() != nullptr)
+	{
+		//	 UGameplayStatics::SpawnDecalAttached(Decal, Ball->RelativeScale3D, OtherComp, NAME_None, HitLocation, Hit.ImpactNormal.Rotation(), EAttachLocation::KeepWorldPosition, 200.0f);
+		UDecalComponent *dec = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), Decal, decalSpawnTransform.GetScale3D(), decalSpawnTransform.GetLocation(), (-HitNormal).Rotation(), 25.0f);
+//		DrawDebugPoint(GetWorld(), decalSpawnTransform.GetLocation(), 200.0f, FColor::Red, true);
+		//		dec->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		dec->SetWorldTransform(decalSpawnTransform);
+		dec->Activate(false);
+		dec->bHiddenInGame = false;
+		dec->bVisible = true;
+//		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Emerald, dec->GetComponentTransform().ToString());
+	}
 
 	if (Other == nullptr)	//leave if the Other object is not an AActor
 		return;
 
+	
 	// Try to cast it to a RollingCodeBall
 	ARollingCodeBall *otherBall = Cast<ARollingCodeBall>(Other);
 

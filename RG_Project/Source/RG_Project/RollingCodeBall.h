@@ -82,6 +82,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Ball)
 		float MouseSensitivity;
 
+	/** Mouse X/Y axis movement sensitivity multiplier */
+	UPROPERTY(EditAnywhere, Category = Ball)
+		UMaterial *Decal;
+
 	/** Mouse scroll sensitivity multiplier */
 	UPROPERTY(EditAnywhere, Category = Ball)
 		float ScrollSensitivity;
