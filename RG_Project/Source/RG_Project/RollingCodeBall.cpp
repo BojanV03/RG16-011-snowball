@@ -32,6 +32,7 @@ ARollingCodeBall::ARollingCodeBall()
 	Ball->SetNotifyRigidBodyCollision(true);
 	Ball->SetMassScale("None", Ball->RelativeScale3D.GetAbsMax() * MassScaleMultiplier);
 	Ball->SetVisibility(false);
+	Ball->bReceivesDecals = false;
 	
 	RootComponent = Ball;
 
@@ -52,6 +53,7 @@ ARollingCodeBall::ARollingCodeBall()
 	BallSkin->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BallSkin->SetSimulatePhysics(false);
 	BallSkin->SetStaticMesh(BallSkinMesh.Object);
+	BallSkin->bReceivesDecals = false;
 
 	// Create a camera and attach to boom
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera0"));
