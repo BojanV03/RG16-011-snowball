@@ -502,6 +502,11 @@ void ARollingCodeBall::Tick(float DeltaSeconds)
 
 void ARollingCodeBall::Destroyed()
 {
-	if(GameMode != nullptr && GameMode->BallArray.Contains(this))
+	if (GameMode != nullptr && GameMode->BallArray.Contains(this))
+	{
+	//	if (GameMode->BallArray.IndexOfByKey(this) == GameMode->CurrentBallIndex)
+	//		GameMode->RestartPlayer();
+
 		GameMode->BallArray.Remove(this);
+	}
 }
