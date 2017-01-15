@@ -158,6 +158,10 @@ void ARollingCodeBall::MoveRight(float Val)
 
 	FVector Torque = RightVector * intensity;
 	Ball->AddTorque(Torque);
+	RightVector = FVector(RightVector.Y, -RightVector.X, 0.0f);
+	RightVector.Normalize();
+	Torque = RightVector * intensity;
+	Ball->AddForce(Torque / 250.0f);
 }
 
 void ARollingCodeBall::MoveForward(float Val)
@@ -173,6 +177,11 @@ void ARollingCodeBall::MoveForward(float Val)
 
 	FVector Torque = ForwardVector * intensity;
 	Ball->AddTorque(Torque);
+
+	ForwardVector = FVector(ForwardVector.Y, -ForwardVector.X, 0.0f);
+	ForwardVector.Normalize();
+	Torque = ForwardVector * intensity;
+	Ball->AddForce(Torque / 250.0f);
 }
 
 void ARollingCodeBall::Jump()
@@ -462,8 +471,8 @@ void ARollingCodeBall::BeginPlay()
 	if (LoadGameInstance != nullptr)
 	{
 		BallSkinID = LoadGameInstance->BallSkinID;
-		Ball->SetStaticMesh(GameMode->BallMeshFactory.getMeshFromID(BallSkinID));
-		BallSkin->SetStaticMesh(GameMode->BallMeshFactory.getSkinFromID(BallSkinID));
+		Ball->SetStaticMesh(GameMode->getMeshFromID(BallSkinID));
+		BallSkin->SetStaticMesh(GameMode->getSkinFromID(BallSkinID));
 
 		// if it is the first ball added to the array we want the particle effects
 		if (GameMode->BallArray.Num() == 1)

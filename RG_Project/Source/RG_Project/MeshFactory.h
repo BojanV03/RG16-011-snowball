@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#include "GameFramework/Pawn.h"
 #include "RG_Project.h"
 
 class RG_PROJECT_API MeshFactory
@@ -9,7 +8,7 @@ class RG_PROJECT_API MeshFactory
 public:
 	MeshFactory();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		UStaticMesh* Meshes[14];
 
 	UPROPERTY()

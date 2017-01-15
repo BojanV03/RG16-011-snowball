@@ -19,8 +19,18 @@ public:
 	// FPS Counter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RollingCodeGamemode)
 		int FPS;
+
+	UPROPERTY()
+		UStaticMesh* Meshes[14];
 	// Used for getting the mesh/skin for the selected ball
-	MeshFactory BallMeshFactory;
+//	MeshFactory BallMeshFactory;
+	UPROPERTY()
+		UStaticMesh* SphereMesh;
+
+	/** Returns a mesh that is used for collisions for the ball with index n */
+	UStaticMesh* getMeshFromID(int n);
+	/** Returns a skin that is used just for aesthetics for the ball with index n */
+	UStaticMesh* getSkinFromID(int n);
 
 	virtual void Tick(float DeltaSeconds) override;
 };
