@@ -13,5 +13,12 @@
 				"UnrealEd"
 			]
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "CreaturePackPlugin",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/442925bb7f9541319366ab2d902c0c45"
+		}
 	]
 }
