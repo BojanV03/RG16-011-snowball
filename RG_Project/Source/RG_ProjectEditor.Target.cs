@@ -5,21 +5,10 @@ using System.Collections.Generic;
 
 public class RG_ProjectEditorTarget : TargetRules
 {
-	public RG_ProjectEditorTarget(TargetInfo Target)
+	public RG_ProjectEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-	}
-
-	//
-	// TargetRules interface.
-	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.AddRange( new string[] { "RG_Project" } );
+		
+		ExtraModuleNames.AddRange( new string[] { "RG_Project" } );
 	}
 }

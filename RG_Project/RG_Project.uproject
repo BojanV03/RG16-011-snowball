@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "4.15",
+	"EngineAssociation": "4.21",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -15,10 +15,5 @@
 		}
 	],
 	"Plugins": [
-		{
-			"Name": "CreaturePackPlugin",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/442925bb7f9541319366ab2d902c0c45"
-		}
 	]
 }
